@@ -61,6 +61,7 @@ levels(anti$experiment_name)
 anti <- anti_join(distinct(meta1_by, experiment_name), distinct(meta2_by, experiment_name))
 pro <- anti_join(distinct(meta2, experiment_name), distinct(meta1, experiment_name))
 levels(anti$experiment_name)
+levels(anti$planting_year)
 
 
 #match rows in columns
