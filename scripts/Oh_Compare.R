@@ -53,9 +53,9 @@ write_csv(join_meta_cnt, "data/join_meta_count.csv")
 
 #list the categories in a field - "levels"
 
-anti <- anti_join(distinct(meta1Sum, experiment_name), distinct(meta2Sum, experiment_name))
+anti <- anti_join(distinct(meta1Sum, experiment_name), distinct(meta2Sum, experiment_name)) #what is in meta1 but not meta2
 pro <- anti_join(distinct(meta2, experiment_name), distinct(meta1, experiment_name))
-levels(anti$experiment_name)
+unique(anti$planting_year)
 
 #compare categories from grouped values
 anti <- anti_join(distinct(meta1_by, experiment_name), distinct(meta2_by, experiment_name))
