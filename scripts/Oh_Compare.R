@@ -32,7 +32,7 @@ colnames(meta2)
 
 #look at header data or glimpse, which is better with many columns
 head(meta1, 5)
-head(meta2, 10)
+head(meta2, 5)
 glimpse(meta1)
 glimpse(meta2)
 
