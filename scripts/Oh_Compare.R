@@ -7,7 +7,7 @@ library(lubridate)
 library(readxl)
 
 #read in files; excel file name and sheet name or number
-meta1 <- read_xlsx("data/Definitive canopy temperature.xlsx", "Sensor_Database") %>%
+meta1 <- read_xlsx("data/definitive canopy temperature.xlsx", "Sensor_Database") %>%
   mutate_if(is.character,as.factor) %>%  #mutate the character fields to factor
   rename(Irrigation_type = Irrigation_Type, sensor_type = Sensor_type, experiment_name = Experiment_Name, 
          planting_year = Planting_Year, treatment = Treatment, location = Location, plot_no = Plot_Number, 
