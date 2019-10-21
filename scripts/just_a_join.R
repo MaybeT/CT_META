@@ -5,32 +5,44 @@ library(lubridate)
 library(readxl)
 
 #read in files; excel file name and sheet name or number
-Join1 <- read_xlsx("data/definitive canopy temperature.xlsx", "Sensor_Database") %>%
+readin <- read_csv("data/warren_dct.csv") %>%
   mutate_if(is.character,as.factor) %>%  #mutate the character fields to factor
   rename(Irrigation_type = Irrigation_Type, sensor_type = Sensor_type, experiment_name = Experiment_Name, 
          planting_year = Planting_Year, treatment = Treatment, location = Location, plot_no = Plot_Number, 
-         row_configuration = Row_Configuration, Planting_day_of_year =  "Planting_Date_(DOY)",
+         row_configuration = Row_Configuration, Planting_day_of_year =  "Planting_Date_(DOY)", variety = Variety,
          lint_yield_kg_per_ha = Lint_Yield_kg_ha, fibre_length_mm = Fibre_Length_mm, micronaire = Micronaire, 
          fibre_strength_g.tex = "Fibre_Strength_(g/tex)")
+  
+Join <- filter(readin, planting_year == 2012 & str_detect(experiment_name,"^\\d....")) %>% 
+  mutate(lint_yield_kg_per_ha = (as.numeric(lint_yield_kg_per_ha))) %>% ##104 obs 
+  mutate_at(vars(starts_with("Irrigation_Date")), .funs = dmy)
+  
+  gather(key = "irrigation", value = "irrig_date", starts_with("Irrigation_date")) %>% 
+  mutate(irrig_date_2 = dmy(irrig_date))
 
-Join2 <- read.csv("data/cotton_canopy_sensor_agronomic_data.csv")
+Join <-   spread(JoinG, key = "irrigation", value = "irrig_date_2")
 
-Join3 <- read_xlsx("data/Definitive_metadata.xlsx", "Sensor_Database") %>% 
-  mutate_if(is.character,as.factor) %>%  #mutate the character fields to factor
-  rename(Irrigation_type = Irrigation_Type, sensor_type = Sensor_type, experiment_name = Experiment_Name, 
-         planting_year = planting_year, treatment = Treatment, location = Location, plot_no = Plot_Number, 
-         row_configuration = Row_Configuration, Planting_day_of_year =  "Planting_Date_(DOY)",
-         lint_yield_kg_per_ha = Lint_Yield_kg_ha, fibre_length_mm = Fibre_Length_mm, micronaire = Micronaire, 
-         fibre_strength_g.tex = "Fibre_Strength_(g/tex)")
+# have a look - has it worked?#filter(!is.na(irrig_date))
 
+# planting_year %in% c(2012,2014) filter syntax
+
+
+ 
+  mutate_at(vars(starts_with("Irrigation_date")), .funs = dmy)
+
+  glimpse(Join1)
+
+  Join2 <- read.csv("data/add_to_DAP.csv") %>% 
+  mutate_if(is.character,as.factor) %>%   #mutate the character fields to factor
+  mutate(temp_rep_no = (as.numeric(temp_rep_no))) %>% 
+  mutate(lint_yield_kg_per_ha = (as.numeric(lint_yield_kg_per_ha)))
+glimpse(Join2)
+ 
 #get column names for comparitive tables. 
 colnames(Join1)
 colnames(Join2)
 
-
-#look at header data or glimpse, which is better with many columns
-head(Join1, 5)
-head(Join2, 5)
+#glimpse, which is better with many columns
 glimpse(Join1)
 glimpse(Join2)
 
@@ -38,15 +50,9 @@ glimpse(Join2)
 summary(Join1)
 summary(Join2)
 
-#Summarise the table to give a count of a grouped value "experiement name", "planting year"
-Join1Sum <- Join1 %>% group_by(experiment_name, planting_year)
-Join1_by <- Join1Sum %>% summarise(n1 = n())
 
-Join2Sum <- Join2 %>% group_by(experiment_name, planting_year)
-Join2_by <- Join2Sum %>% summarise(n2 = n())
-
-join_meta_cnt <- full_join(Join1_by,Join2_by)
-write_csv(join_meta_cnt, "data/join_meta_count.csv")
+join_wc_cnt <- full_join(Join1,Join2)
+write_csv(join_meta_cnt, "data/join_wc.csv")
 
 
 #list the categories in a field - "levels"

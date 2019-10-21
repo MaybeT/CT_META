@@ -58,8 +58,11 @@ pro <- anti_join(distinct(meta2, experiment_name), distinct(meta1, experiment_na
 unique(anti$planting_year)
 
 #compare categories from grouped values
-anti <- anti_join(distinct(meta1_by, experiment_name), distinct(meta2_by, experiment_name))
-pro <- anti_join(distinct(meta2, experiment_name), distinct(meta1, experiment_name))
+anti <- anti_join(distinct(meta1_by, experiment_name,planting_year), distinct(meta2_by, experiment_name,planting_year))
+levels(anti$experiment_name)
+levels(anti$planting_year)
+
+pro <- anti_join(distinct(meta2, experiment_name, planting_year), distinct(meta1, experiment_name, planting_year))
 levels(anti$experiment_name)
 levels(anti$planting_year)
 
