@@ -9,36 +9,40 @@ readin <- read_csv("data/warren_dct.csv") %>%
   mutate_if(is.character,as.factor) %>%  #mutate the character fields to factor
   rename(Irrigation_type = Irrigation_Type, sensor_type = Sensor_type, experiment_name = Experiment_Name, 
          planting_year = Planting_Year, treatment = Treatment, location = Location, plot_no = Plot_Number, 
-         row_configuration = Row_Configuration, Planting_day_of_year =  "Planting_Date_(DOY)", variety = Variety,
+         row_configuration = Row_Configuration, planting_day_of_year = "Planting_Date_(DOY)", variety = Variety,
          lint_yield_kg_per_ha = Lint_Yield_kg_ha, fibre_length_mm = Fibre_Length_mm, micronaire = Micronaire, 
          fibre_strength_g.tex = "Fibre_Strength_(g/tex)")
   
-Join <- filter(readin, planting_year == 2012 & str_detect(experiment_name,"^\\d....")) %>% 
-  mutate(lint_yield_kg_per_ha = (as.numeric(lint_yield_kg_per_ha))) %>% ##104 obs 
+Join1 <- filter(readin, planting_year == 2012 & str_detect(experiment_name,"^\\d....")) %>% 
+  mutate(lint_yield_kg_per_ha = (as.numeric(lint_yield_kg_per_ha))) %>%
+  mutate(temp_exp_no = (as.factor(temp_exp_no))) %>% 
+  mutate(planting_day_of_year = (as.numeric(planting_day_of_year))) %>% 
+  mutate(row_configuration = (as.factor(row_configuration))) %>% 
+  mutate(temp_rep_no = (as.numeric(temp_rep_no))) %>% ##104 obs 
   mutate_at(vars(starts_with("Irrigation_Date")), .funs = dmy)
   
-  gather(key = "irrigation", value = "irrig_date", starts_with("Irrigation_date")) %>% 
-  mutate(irrig_date_2 = dmy(irrig_date))
 
-Join <-   spread(JoinG, key = "irrigation", value = "irrig_date_2")
-
-# have a look - has it worked?#filter(!is.na(irrig_date))
-
-# planting_year %in% c(2012,2014) filter syntax
-
-
- 
-  mutate_at(vars(starts_with("Irrigation_date")), .funs = dmy)
-
-  glimpse(Join1)
-
-  Join2 <- read.csv("data/add_to_DAP.csv") %>% 
+Join2 <- read.csv("data/add_to_DAP.csv") %>% 
+  filter(planting_year == 2012) %>% 
   mutate_if(is.character,as.factor) %>%   #mutate the character fields to factor
-  mutate(temp_rep_no = (as.numeric(temp_rep_no))) %>% 
-  mutate(lint_yield_kg_per_ha = (as.numeric(lint_yield_kg_per_ha)))
-glimpse(Join2)
+  mutate(temp_rep_no = (as.numeric(temp_rep_no))) %>%
+  mutate(temp_exp_no = (as.factor(temp_exp_no))) %>%
+  mutate(row_configuration = (as.factor(row_configuration))) %>% 
+  mutate(lint_yield_kg_per_ha = (as.numeric(lint_yield_kg_per_ha))) %>% 
+  mutate(planting_day_of_year = (as.numeric(planting_day_of_year))) %>% 
+  mutate_at(vars(starts_with("Irrigation_Date")), .funs = dmy)
+
+
  
-#get column names for comparitive tables. 
+join_wc_cnt <- full_join(Join1, by = c("sensor_type", "planting_year", "location", "plot_no", "temp_exp_no", "temp_trt_no", "temp_rep_no", "Irrigation_type", "lint_yield_kg_per_ha", "fibre_length_mm", "micronaire", "fibre_strength_g.tex"),Join2)
+write_csv(join_wc_cnt, "data/join_wc2.csv")
+
+anti_join_wc_cnt <- anti_join(Join1, distinct = c("sensor_type", "planting_year", "location", "plot_no", "temp_exp_no", "temp_trt_no", "temp_rep_no", "variety", "Irrigation_type", "lint_yield_kg_per_ha", "fibre_length_mm", "micronaire", "fibre_strength_g.tex"),Join2)
+
+#get column names for comparitive tables.
+levels(Join1$row_configuration)
+levels(Join2$row_configuration)
+
 colnames(Join1)
 colnames(Join2)
 
@@ -51,8 +55,8 @@ summary(Join1)
 summary(Join2)
 
 
-join_wc_cnt <- full_join(Join1,Join2)
-write_csv(join_meta_cnt, "data/join_wc.csv")
+
+
 
 
 #list the categories in a field - "levels"
@@ -70,9 +74,11 @@ levels(anti$planting_year)
 
 #match rows in columns
 #
-compare <- Join1 %>% semi_join(Join2, by = "Sensor_Unique_Identifier")
-anti_compare <- Join1 %>% anti_join(Join2, by = "Sensor_Unique_Identifier")
+compare <- Join1 %>% semi_join(join_wc_cnt)
+anti_compare <- Join1 %>% anti_join(join_wc_cnt)
 
+compare2 <- Join2 %>% semi_join(join_wc_cnt)
+anti_compare2 <- Join2 %>% anti_join(join_wc_cnt)
 
 band_members %>% inner_join(band_instruments)
 band_members %>% left_join(band_instruments)
