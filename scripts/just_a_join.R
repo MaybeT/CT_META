@@ -13,17 +13,20 @@ readin <- read_csv("data/warren_dct.csv") %>%
          lint_yield_kg_per_ha = Lint_Yield_kg_ha, fibre_length_mm = Fibre_Length_mm, micronaire = Micronaire, 
          fibre_strength_g.tex = "Fibre_Strength_(g/tex)")
   
-Join1 <- filter(readin, planting_year == 2012 & str_detect(experiment_name,"^\\d....")) %>% 
+Join1 <- filter(readin, planting_year == 2012 & str_detect(experiment_name,"^\\d..")) %>% 
   mutate(lint_yield_kg_per_ha = (as.numeric(lint_yield_kg_per_ha))) %>%
   mutate(temp_exp_no = (as.factor(temp_exp_no))) %>% 
   mutate(planting_day_of_year = (as.numeric(planting_day_of_year))) %>% 
   mutate(row_configuration = (as.factor(row_configuration))) %>% 
   mutate(temp_rep_no = (as.numeric(temp_rep_no))) %>% ##104 obs 
   mutate_at(vars(starts_with("Irrigation_Date")), .funs = dmy)
-  
+
+glimpse(Join1)
+levels(Join1$experiment_name) 
+
 
 Join2 <- read.csv("data/add_to_DAP.csv") %>% 
-  filter(planting_year == 2012) %>% 
+  filter(planting_year == 2012 & experiment_name == "Warren Gentype Leitch Dryland") %>% 
   mutate_if(is.character,as.factor) %>%   #mutate the character fields to factor
   mutate(temp_rep_no = (as.numeric(temp_rep_no))) %>%
   mutate(temp_exp_no = (as.factor(temp_exp_no))) %>%
@@ -35,13 +38,17 @@ Join2 <- read.csv("data/add_to_DAP.csv") %>%
 
  
 join_wc_cnt <- full_join(Join1, by = c("sensor_type", "planting_year", "location", "plot_no", "temp_exp_no", "temp_trt_no", "temp_rep_no", "Irrigation_type", "lint_yield_kg_per_ha", "fibre_length_mm", "micronaire", "fibre_strength_g.tex"),Join2)
-write_csv(join_wc_cnt, "data/join_wc2.csv")
 
+f1 <- filter(join_wc_cnt, !is.na(join_id.y))
+f2 <- filter(join_wc_cnt, is.na(join_id.y))
+write_csv(join_wc_cnt, "data/join_wc2.csv")
+write_csv(f2, "data/misjoin_wc.csv")
 anti_join_wc_cnt <- anti_join(Join1, distinct = c("sensor_type", "planting_year", "location", "plot_no", "temp_exp_no", "temp_trt_no", "temp_rep_no", "variety", "Irrigation_type", "lint_yield_kg_per_ha", "fibre_length_mm", "micronaire", "fibre_strength_g.tex"),Join2)
 
 #get column names for comparitive tables.
-levels(Join1$row_configuration)
-levels(Join2$row_configuration)
+levels(Join1$treatment)
+levels(Join2$treatment)
+levels(Join1$experiment_name)
 
 colnames(Join1)
 colnames(Join2)
@@ -53,10 +60,6 @@ glimpse(Join2)
 #summary table
 summary(Join1)
 summary(Join2)
-
-
-
-
 
 
 #list the categories in a field - "levels"
