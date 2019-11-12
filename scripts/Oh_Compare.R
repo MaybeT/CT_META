@@ -14,6 +14,7 @@ meta1 <- read_xlsx("data/definitive canopy temperature.xlsx", "Sensor_Database")
          row_configuration = Row_Configuration, Planting_day_of_year =  "Planting_Date_(DOY)",
          lint_yield_kg_per_ha = Lint_Yield_kg_ha, fibre_length_mm = Fibre_Length_mm, micronaire = Micronaire, 
          fibre_strength_g.tex = "Fibre_Strength_(g/tex)")
+levels(meta1$row_configuration)
 
  meta2 <- read.csv("data/cotton_canopy_sensor_agronomic_data.csv")
 
@@ -25,9 +26,12 @@ meta1 <- read_xlsx("data/definitive canopy temperature.xlsx", "Sensor_Database")
           lint_yield_kg_per_ha = Lint_Yield_kg_ha, fibre_length_mm = Fibre_Length_mm, micronaire = Micronaire, 
           fibre_strength_g.tex = "Fibre_Strength_(g/tex)")
  
+ meta4 <- read_csv("data/add_to_DAP.csv")
+ 
 #get column names for comparitive tables. 
 colnames(meta1)
 colnames(meta2)
+colnames(meta4)
 
 
 #look at header data or glimpse, which is better with many columns
@@ -72,27 +76,38 @@ levels(anti$planting_year)
 compare <- meta1 %>% semi_join(meta2, by = "Sensor_Unique_Identifier")
 anti_compare <- meta1 %>% anti_join(meta2, by = "Sensor_Unique_Identifier")
 
+#comparing internal data
 
-band_members %>% inner_join(band_instruments)
-band_members %>% left_join(band_instruments)
-band_members %>% right_join(band_instruments)
-band_members %>% full_join(band_instruments)
+add_DAP <- read_csv()
 
-# "Filtering" joins keep cases from the LHS
-band_members %>% semi_join(band_instruments)
-band_members %>% ?anti_join(band_instruments)
+# comparing and listing what is to be added to DAP file (filename = Add_to_DAP)
 
-# "Nesting" joins keep cases from the LHS and nests the RHS
-band_members %>% nest_join(band_instruments)
+#Summarise the table to give a count of a grouped value "experiement name", "planting year"
+meta1Sum <- meta1 %>% group_by(experiment_name, planting_year)
+meta1_by <- meta1Sum %>% summarise(n1 = n())
 
-# To suppress the message, supply by
-band_members %>% inner_join(band_instruments, by = "name")
-# This is good practice in production code
+meta4Sum <- meta4 %>% group_by(experiment_name, planting_year)
+meta4_by <- meta4Sum %>% summarise(nAdd = n())
 
-# Use a named `by` if the join variables have different names
-band_members %>% full_join(band_instruments2, by = c("name" = "artist"))
-# Note that only the key from the LHS is kept
+files_to_be_added_to_DAP <- full_join(meta1_by,meta4_by)
+write_csv(join_meta_cnt, "data/join_meta4_count.csv")
 
-#select columns to go into the dataframe
+
+#list the categories in a field - "levels"
+
+anti <- anti_join(distinct(meta1Sum, experiment_name), distinct(meta2Sum, experiment_name)) #what is in meta1 but not meta2
+pro <- anti_join(distinct(meta2, experiment_name), distinct(meta1, experiment_name))
+unique(anti$planting_year)
+
+#compare categories from grouped values
+anti <- anti_join(distinct(meta1_by, experiment_name,planting_year), distinct(meta2_by, experiment_name,planting_year))
+levels(anti$experiment_name)
+levels(anti$planting_year)
+
+pro <- anti_join(distinct(meta4, experiment_name, planting_year), distinct(meta1, experiment_name, planting_year))
+levels(anti$experiment_name)
+levels(anti$planting_year)
+
+
 
 
