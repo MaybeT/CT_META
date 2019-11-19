@@ -13,7 +13,7 @@ readin <- read_csv("data/warren_dct.csv") %>%
          lint_yield_kg_per_ha = Lint_Yield_kg_ha, fibre_length_mm = Fibre_Length_mm, micronaire = Micronaire, 
          fibre_strength_g.tex = "Fibre_Strength_(g/tex)")
   
-Join1 <- filter(readin, planting_year == 2012 & str_detect(experiment_name,"^\\d..")) %>% 
+Join1 <- filter(readin, planting_year == 2012) %>% 
   mutate(lint_yield_kg_per_ha = (as.numeric(lint_yield_kg_per_ha))) %>%
   mutate(temp_exp_no = (as.factor(temp_exp_no))) %>% 
   mutate(planting_day_of_year = (as.numeric(planting_day_of_year))) %>% 
@@ -21,12 +21,14 @@ Join1 <- filter(readin, planting_year == 2012 & str_detect(experiment_name,"^\\d
   mutate(temp_rep_no = (as.numeric(temp_rep_no))) %>% ##104 obs 
   mutate_at(vars(starts_with("Irrigation_Date")), .funs = dmy)
 
+summary(Join1)
+
 glimpse(Join1)
 levels(Join1$experiment_name) 
 
 
 Join2 <- read.csv("data/add_to_DAP.csv") %>% 
-  filter(planting_year == 2012 & experiment_name == "Warren Gentype Leitch Dryland") %>% 
+  filter(planting_year == 2012) %>% 
   mutate_if(is.character,as.factor) %>%   #mutate the character fields to factor
   mutate(temp_rep_no = (as.numeric(temp_rep_no))) %>%
   mutate(temp_exp_no = (as.factor(temp_exp_no))) %>%
