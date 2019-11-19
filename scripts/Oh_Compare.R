@@ -1,23 +1,26 @@
 #Oh Compare mon cher
 #Tracey May
-# Last Modified 2019/08/23
+# Created 1/09/2019
+#modified #12/11/2019
 
 library(tidyverse)
 library(lubridate)
 library(readxl)
 
-#read in files; excel file name and sheet name or number
-meta1 <- read_xlsx("data/definitive canopy temperature.xlsx", "Sensor_Database") %>%
+#read in files; excel file name and sheet name or number - this is the "original" file
+meta1 <- read_xlsx("M:/AusBIOTIC database/Definative_cT_Raw/definitive canopy temperature.xlsx", "Sensor_Database") %>%
   mutate_if(is.character,as.factor) %>%  #mutate the character fields to factor
   rename(Irrigation_type = Irrigation_Type, sensor_type = Sensor_type, experiment_name = Experiment_Name, 
          planting_year = Planting_Year, treatment = Treatment, location = Location, plot_no = Plot_Number, 
-         row_configuration = Row_Configuration, Planting_day_of_year =  "Planting_Date_(DOY)",
+         row_configuration = Row_Configuration, Planting_day_of_year =  "Planting_Date_DOY",
          lint_yield_kg_per_ha = Lint_Yield_kg_ha, fibre_length_mm = Fibre_Length_mm, micronaire = Micronaire, 
-         fibre_strength_g.tex = "Fibre_Strength_(g/tex)")
-levels(meta1$row_configuration)
+         fibre_strength_g.tex = "Fibre_Strength_g/tex")
+levels(meta1$location)
 
+
+#these are the files already on the DAP
  meta2 <- read.csv("data/cotton_canopy_sensor_agronomic_data.csv")
-
+levels(meta2$location)
  meta3 <- read_xlsx("data/Definitive_metadata.xlsx", "Sensor_Database") %>% 
    mutate_if(is.character,as.factor) %>%  #mutate the character fields to factor
    rename(Irrigation_type = Irrigation_Type, sensor_type = Sensor_type, experiment_name = Experiment_Name, 
@@ -26,8 +29,8 @@ levels(meta1$row_configuration)
           lint_yield_kg_per_ha = Lint_Yield_kg_ha, fibre_length_mm = Fibre_Length_mm, micronaire = Micronaire, 
           fibre_strength_g.tex = "Fibre_Strength_(g/tex)")
  
- meta4 <- read_csv("data/add_to_DAP.csv")
- 
+ meta4 <- read_csv("data/add_to_DAP.csv") %>% 
+      mutate_if(is.character,as.factor)
 #get column names for comparitive tables. 
 colnames(meta1)
 colnames(meta2)
@@ -45,11 +48,11 @@ summary(meta1)
 summary(meta2)
 
 #Summarise the table to give a count of a grouped value "experiement name", "planting year"
-meta1Sum <- meta1 %>% group_by(experiment_name, planting_year)
-meta1_by <- meta1Sum %>% summarise(n1 = n())
+meta1Sum <- meta1 %>% group_by(experiment_name, planting_year, location)
+meta1_by <- meta1Sum %>% summarise(MetaData = n())
 
-meta2Sum <- meta2 %>% group_by(experiment_name, planting_year)
-meta2_by <- meta2Sum %>% summarise(n2 = n())
+meta2Sum <- meta2 %>% group_by(experiment_name, planting_year, location)
+meta2_by <- meta2Sum %>% summarise(inDAP = n())
 
 join_meta_cnt <- full_join(meta1_by,meta2_by)
 write_csv(join_meta_cnt, "data/join_meta_count.csv")
@@ -78,22 +81,20 @@ anti_compare <- meta1 %>% anti_join(meta2, by = "Sensor_Unique_Identifier")
 
 #comparing internal data
 
-add_DAP <- read_csv()
+
+###################################################################################################
 
 # comparing and listing what is to be added to DAP file (filename = Add_to_DAP)
 
 #Summarise the table to give a count of a grouped value "experiement name", "planting year"
-meta1Sum <- meta1 %>% group_by(experiment_name, planting_year)
-meta1_by <- meta1Sum %>% summarise(n1 = n())
 
-meta4Sum <- meta4 %>% group_by(experiment_name, planting_year)
+meta4Sum <- meta4 %>% group_by(experiment_name, planting_year, location)
 meta4_by <- meta4Sum %>% summarise(nAdd = n())
 
-files_to_be_added_to_DAP <- full_join(meta1_by,meta4_by)
-write_csv(join_meta_cnt, "data/join_meta4_count.csv")
+files_to_be_added_to_DAP <- full_join(meta1_by,meta2_by) %>% 
+                           full_join(.,meta4_by)
+write_csv(files_to_be_added_to_DAP, "data/FilesToBeAdded_DAP_TM.csv")
 
-
-#list the categories in a field - "levels"
 
 anti <- anti_join(distinct(meta1Sum, experiment_name), distinct(meta2Sum, experiment_name)) #what is in meta1 but not meta2
 pro <- anti_join(distinct(meta2, experiment_name), distinct(meta1, experiment_name))
