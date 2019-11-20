@@ -29,19 +29,21 @@ Quality12 <- read_xlsx("//nexus.csiro.au/CSIRO/Agriculture/Operations Agricultur
 Yield12 <-  read_csv("//nexus.csiro.au/CSIRO/Agriculture/Operations Agriculture/Myall Vale/Groups/COTPhys/2012-2013/Trials/Limited Water B2/Working/Yield/Yield.csv") %>% 
     rename(lint_m2 = "Lint/m2", temp_rep_no = Rep) %>% #rename columns is another way to join different column names (vectors)
     mutate(temp_rep_no = as.factor(temp_rep_no)) %>% 
+    mutate(planting_year = 2012) %>%
+    mutate(experiment_name = "LimitedWater") %>% 
     mutate(plot_no = as.character(plot_no)) %>% 
     mutate(lint_yield_kg_per_ha = lint_m2*10) %>% 
-    select(plot_no,lint_yield_kg_per_ha)
+  select(planting_year, experiment_name, plot_no, lint_yield_kg_per_ha)
  
 
 
 #use janitor package to compare matching columns, what the joins will do
 
-compare_df_cols(Yield12,meta1Filter)
+compare_df_cols(Yield12,meta1)
 
-join_to_meta1 <- full_join(meta1Filter,Yield12, by = "plot_no") %>% 
-  
-bind_meta1 <-  bind_cols(meta1Filter.lint_yield_kg_per_ha,Yield12.lint_yield_kg_per_ha)
- 
-merge_to_meta1 <- merge(meta1Filter,Yield12, by = "plot_no")
+join_to_meta1 <- full_join(meta1,Yield12, by = c("planting_year", "plot_no", "experiment_name")) %>% 
+    mutate(lint_yield_kg_per_ha = case_when(!is.na(lint_yield_kg_per_ha.y)~lint_yield_kg_per_ha.y,!is.na(lint_yield_kg_per_ha.x)~lint_yield_kg_per_ha.x,TRUE~NA_real_)) %>% 
+ select(lint_yield_kg_per_ha, lint_yield_kg_per_ha.x, lint_yield_kg_per_ha.y, everything())
+
+
 
