@@ -93,7 +93,8 @@ meta4_by <- meta4Sum %>% summarise(nAdd = n())
 
 files_to_be_added_to_DAP <- full_join(meta1_by,meta2_by) %>% 
                            full_join(.,meta4_by)
-write_csv(files_to_be_added_to_DAP, "data/FilesToBeAdded_DAP_TM.csv")
+                           
+ sort(files_to_be_added_to_DAP, by= planting_year) %>% write_csv(files_to_be_added_to_DAP, "data/FilesToBeAdded_DAP_TM.csv")
 
 
 anti <- anti_join(distinct(meta1Sum, experiment_name), distinct(meta2Sum, experiment_name)) #what is in meta1 but not meta2
