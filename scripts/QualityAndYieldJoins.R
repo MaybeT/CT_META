@@ -17,14 +17,11 @@ meta1 <- read_xlsx("M:/AusBIOTIC database/Definative_cT_Raw/definitive canopy te
   mutate(plot_no = as.character(plot_no))
 
   
-meta1Filter <- filter(meta1, planting_year == 2012 & experiment_name == "LimitedWater")
+# meta1Filter <- filter(meta1, planting_year == 2012 & experiment_name == "LimitedWater") %>% 
+#   select(lint_yield_kg_per_ha, everything())
 
 
-#2012/13 Quanlity and Yield data from Limited Water Maturity pick Data
-
-Quality12 <- read_xlsx("//nexus.csiro.au/CSIRO/Agriculture/Operations Agriculture/Myall Vale/Groups/COTPhys/2012-2013/Trials/Limited Water B2/Raw Data/Fibre Quality/Limited Water Maturity Pick HVI Data 1213.xlsx") 
-## force join by different column names
-#To join by different variables on x and y use a named vector. For example, by = c("a" = "b") will match x.a to y.b
+#2012/13 Yield data from Limited Water Maturity pick Data
 
 Yield12 <-  read_csv("//nexus.csiro.au/CSIRO/Agriculture/Operations Agriculture/Myall Vale/Groups/COTPhys/2012-2013/Trials/Limited Water B2/Working/Yield/Yield.csv") %>% 
     rename(lint_m2 = "Lint/m2", temp_rep_no = Rep) %>% #rename columns is another way to join different column names (vectors)
@@ -36,7 +33,6 @@ Yield12 <-  read_csv("//nexus.csiro.au/CSIRO/Agriculture/Operations Agriculture/
   select(planting_year, experiment_name, plot_no, lint_yield_kg_per_ha)
  
 
-
 #use janitor package to compare matching columns, what the joins will do
 
 compare_df_cols(Yield12,meta1)
@@ -45,5 +41,13 @@ join_to_meta1 <- full_join(meta1,Yield12, by = c("planting_year", "plot_no", "ex
     mutate(lint_yield_kg_per_ha = case_when(!is.na(lint_yield_kg_per_ha.y)~lint_yield_kg_per_ha.y,!is.na(lint_yield_kg_per_ha.x)~lint_yield_kg_per_ha.x,TRUE~NA_real_)) %>% 
  select(lint_yield_kg_per_ha, lint_yield_kg_per_ha.x, lint_yield_kg_per_ha.y, everything())
 
+#2012/13 fibre quality data from Limited water maturity pick Data
 
+Quality12 <- read_xlsx("//nexus.csiro.au/CSIRO/Agriculture/Operations Agriculture/Myall Vale/Groups/COTPhys/2012-2013/Trials/Limited Water B2/Raw Data/Fibre Quality/Limited Water Maturity Pick HVI Data 1213.xlsx") %>%  
+    rename(plot_no = "Plot") %>% 
+    mutate(planting_year = 2012) %>%
+    mutate(experiment_name = "LimitedWater") %>% 
+    mutate(plot_no = as.character(plot_no)) %>% 
+      ## force join by different column names
+#To join by different variables on x and y use a named vector. For example, by = c("a" = "b") will match x.a to y.b
 
