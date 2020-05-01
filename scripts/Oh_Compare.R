@@ -14,20 +14,21 @@ meta1 <- read_xlsx("M:/AusBIOTIC database/Definative_cT_Raw/definitive canopy te
          planting_year = Planting_Year, treatment = Treatment, location = Location, plot_no = Plot_Number, 
          row_configuration = Row_Configuration, Planting_day_of_year =  "Planting_Date_DOY",
          lint_yield_kg_per_ha = Lint_Yield_kg_ha, fibre_length_mm = Fibre_Length_mm, micronaire = Micronaire, 
-         fibre_strength_g.tex = "Fibre_Strength_g/tex")
+         fibre_strength_g_tex = "Fibre_Strength_g/tex")
 levels(meta1$location)
 
 
 #these are the files already on the DAP
- meta2 <- read.csv("data/cotton_canopy_sensor_agronomic_data.csv")
+ meta2 <- read.csv("data/cotton_canopy_sensor_agronomic_data_2.csv") %>% 
+    mutate_if(is.character,as.factor)
 levels(meta2$location)
- meta3 <- read_xlsx("data/Definitive_metadata.xlsx", "Sensor_Database") %>% 
+ meta3 <- read_xlsx("data/metadata_files_for_consolidation/Definitive_metadata.xlsx", "Sensor_Database") %>% 
    mutate_if(is.character,as.factor) %>%  #mutate the character fields to factor
    rename(Irrigation_type = Irrigation_Type, sensor_type = Sensor_type, experiment_name = Experiment_Name, 
           planting_year = planting_year, treatment = Treatment, location = Location, plot_no = Plot_Number, 
           row_configuration = Row_Configuration, Planting_day_of_year =  "Planting_Date_(DOY)",
           lint_yield_kg_per_ha = Lint_Yield_kg_ha, fibre_length_mm = Fibre_Length_mm, micronaire = Micronaire, 
-          fibre_strength_g.tex = "Fibre_Strength_(g/tex)")
+          fibre_strength_g_tex = "Fibre_Strength_(g/tex)")
  
  meta4 <- read_csv("data/add_to_DAP.csv") %>% 
       mutate_if(is.character,as.factor)
@@ -55,7 +56,7 @@ meta2Sum <- meta2 %>% group_by(experiment_name, planting_year, location)
 meta2_by <- meta2Sum %>% summarise(inDAP = n())
 
 join_meta_cnt <- full_join(meta1_by,meta2_by)
-write_csv(join_meta_cnt, "data/join_meta_count.csv")
+sort(join_meta_cnt, by = planting_year) %>% write_csv(join_meta_cnt, "data/join_meta_count.csv")
            
 
 #list the categories in a field - "levels"
@@ -94,7 +95,9 @@ meta4_by <- meta4Sum %>% summarise(nAdd = n())
 files_to_be_added_to_DAP <- full_join(meta1_by,meta2_by) %>% 
                            full_join(.,meta4_by)
                            
- sort(files_to_be_added_to_DAP, by= planting_year) %>% write_csv(files_to_be_added_to_DAP, "data/FilesToBeAdded_DAP_TM.csv")
+sort(files_to_be_added_to_DAP, by= planting_year) %>% write_csv(files_to_be_added_to_DAP, "data/FilesToBeAdded_DAP_RoseUpdate.csv")
+arrange(files_to_be_added_to_DAP, planting_year) %>% write_csv(files_to_be_added_to_DAP, "data/FilesToBeAdded_DAP_290420Update.csv")
+
 
 
 anti <- anti_join(distinct(meta1Sum, experiment_name), distinct(meta2Sum, experiment_name)) #what is in meta1 but not meta2

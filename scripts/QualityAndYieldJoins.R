@@ -15,6 +15,18 @@ meta1 <- read_xlsx("M:/AusBIOTIC database/Definative_cT_Raw/definitive canopy te
          lint_yield_kg_per_ha = Lint_Yield_kg_ha, fibre_length_mm = Fibre_Length_mm, micronaire = Micronaire, 
          fibre_strength_g.tex = "Fibre_Strength_g/tex") %>% 
   mutate(plot_no = as.character(plot_no)) %>% 
+  mutate(Irrigation_Date_1 = as.Date(Irrigation_Date_1,"%dd/%mm/%yyyy")) %>%
+  mutate(Irrigation_Date_2 = as.Date(Irrigation_Date_2,"%dd/%mm/%yyyy")) %>% 
+  mutate(Irrigation_Date_3 = as.Date(Irrigation_Date_3,"%dd/%mm/%yyyy")) %>% 
+  mutate(Irrigation_Date_4 = as.Date(Irrigation_Date_4,"%dd/%mm/%yyyy")) %>% 
+  mutate(Irrigation_Date_5 = as.Date(Irrigation_Date_5,"%dd/%mm/%yyyy")) %>% 
+  mutate(Irrigation_Date_6 = as.Date(Irrigation_Date_6,"%dd/%mm/%yyyy")) %>% 
+  mutate(Irrigation_Date_7 = as.Date(Irrigation_Date_7,"%dd/%mm/%yyyy")) %>% 
+  mutate(Irrigation_Date_8 = as.Date(Irrigation_Date_8,"%dd/%mm/%yyyy")) %>% 
+  mutate(Irrigation_Date_9 = as.Date(Irrigation_Date_9,"%dd/%mm/%yyyy")) %>% 
+  mutate(Irrigation_Date_10 = as.Date(Irrigation_Date_10,"%dd/%mm/%yyyy")) %>%
+  mutate(Irrigation_Date_11 = as.Date(Irrigation_Date_11,"%dd/%mm/%yyyy")) %>% 
+  mutate(Irrigation_Date_12 = as.Date(Irrigation_Date_12,"%dd/%mm/%yyyy")) %>% 
   mutate(experiment_name = as.character(experiment_name))
 
   
@@ -55,9 +67,14 @@ compare_df_cols(Quality12,meta1)
 ## force join by different column names
 #To join by different variables on x and y use a named vector. For example, by = c("a" = "b") will match x.a to y.b
 
-join_Quality12_meta1 <-full_join(meta1, Quality12, by = c("planting_year","plot_no", "experiment_name")) %>% 
+join_Quality12_meta1 <-full_join(join_Yield12_meta1, Quality12, by = c("planting_year","plot_no", "experiment_name")) %>% 
     mutate(fibre_strength_g.tex =case_when(!is.na(fibre_strength_g.tex.y)~fibre_strength_g.tex.y, !is.na(fibre_strength_g.tex.x)~fibre_strength_g.tex.x, TRUE~NA_real_)) %>% 
     mutate(fibre_length_mm = case_when(!is.na(fibre_length_mm.y)~fibre_length_mm.y, !is.na(fibre_length_mm.x)~fibre_length_mm.x, TRUE~NA_real_)) %>% 
     mutate(micronaire = case_when(!is.na(micronaire.y)~micronaire.y, !is.na(micronaire.x)~micronaire.x, TRUE~NA_real_)) %>% 
   select(planting_year, experiment_name, plot_no, lint_yield_kg_per_ha, fibre_length_mm, fibre_strength_g.tex, micronaire, everything())
+colnames(join_Quality12_meta1)
 
+
+selectOutput <- select(join_Quality12_meta1, "Sensor_ID", "sensor_type","planting_year","experiment_name", "treatment","location","plot_no","temp_exp_no","temp_trt_no","temp_rep_no","row_configuration","Planting_day_of_year","Variety","Nation", "Climate_File_Name","Irrigation_type","lint_yield_kg_per_ha", "fibre_length_mm","micronaire","fibre_strength_g.tex",everything(), -"lint_yield_kg_per_ha.y", - "lint_yield_kg_per_ha.x",-"fibre_strength_g.tex.x",-"fibre_strength_g.tex.y", -"fibre_length_mm.y" ,-"fibre_length_mm.x",-"micronaire.y", -"micronaire.x")
+
+write_csv(selectOutput,"data/output.csv")
