@@ -53,6 +53,8 @@ sensors <- unique(SensorExtract$UID)
 plotUID <- sensors[i]
 
 i = 2
+
+#loops all sensors to create a plot for all sensors in loop
 for (i in 1:length(sensors)){
   
   plotUID <- sensors[i]
@@ -69,7 +71,7 @@ for (i in 1:length(sensors)){
   
 }
 ggplot(filter(SensorExtract, UID == plotUID), aes(x = Timestamp, y = Value))+
-  geom_line()+
+ geom_line()+
   labs(
     x = "Time",              # x axis title
     y = "CT",   # y axis title
@@ -79,14 +81,15 @@ ggplot(filter(SensorExtract, UID == plotUID), aes(x = Timestamp, y = Value))+
 
 
 # create a table of all the SensorIDs in the data file
-sensortable <- SensorExtract %>% distinct(UID) %>% 
+
 
 SensorExtract <- filter(SensorExtract, str_detect(UID, "^...$")) %>% 
   filter(Timestamp < Sys.time()) %>% 
   #filter(Datetime >= "2017/12/01"& Datetime <= "2018/12/01") %>% #Use this to filter date time by selecting date.
-  filter(between(Value, 5, 50)) %>% 
+  filter(between(Value, 5, 50))
   
-
+sensortable <- SensorExtract %>% 
+                distinct(UID) %>% 
 
 # create a table of all the SensorIDs in the data file
 
@@ -113,3 +116,4 @@ for (i in 1:nrow(sensortable)) {
   try(write_csv(mutate(BySensor,Datetime=format(Datetime, "%F %H:%M:%S")),
                 SaveFileName))
 }
+
