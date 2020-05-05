@@ -12,14 +12,40 @@ Allocations_1819 <- read_xlsx("//fsact.nexus.csiro.au/ANF-Share1/MyallVale/Group
   arrange(sensor_no)
 
 
-allocation_1819_unknown <- read_xlsx("//fsact.nexus.csiro.au/ANF-Share1/MyallVale/Groups/COTPhys/2018-2019/Protocols/1819_CanopyTemperatureSensorAllocation.xlsx", "ArduChecklistNot sure date") %>% 
+Check_unknown <- read_xlsx("//fsact.nexus.csiro.au/ANF-Share1/MyallVale/Groups/COTPhys/2018-2019/Protocols/1819_CanopyTemperatureSensorAllocation.xlsx", "ArduChecklistNot sure date") %>% 
                 arrange(F, Plot)
   
 allocation_1819_futurefarm <- read_xlsx("//fsact.nexus.csiro.au/ANF-Share1/MyallVale/Groups/COTPhys/2018-2019/Protocols/1819_CanopyTemperatureSensorAllocation.xlsx", "A3 future farm") %>% 
                 arrange(sensor_no)
 
-ArduA2_ChangeList300119 <- read_xlsx("//fsact.nexus.csiro.au/ANF-Share1/MyallVale/Groups/COTPhys/2018-2019/Protocols/1819_CanopyTemperatureSensorAllocation.xlsx", "ArduA2_ChangeList300119") %>% 
+Change1 <- read_xlsx("//fsact.nexus.csiro.au/ANF-Share1/MyallVale/Groups/COTPhys/2018-2019/Protocols/Ardu changelist.xlsx", "Ardu changelist") %>% 
                   arrange(sensor_no)
+
+ChangeList300119 <- read_xlsx("//fsact.nexus.csiro.au/ANF-Share1/MyallVale/Groups/COTPhys/2018-2019/Protocols/1819_CanopyTemperatureSensorAllocation.xlsx", "ArduA2_ChangeList300119") %>% 
+                  arrange(sensor_no)
+
+ChangeList220319 <- read_xlsx("//fsact.nexus.csiro.au/ANF-Share1/MyallVale/Groups/COTPhys/2018-2019/Protocols/1819_CanopyTemperatureSensorAllocation.xlsx", "ArduA2_changelist_22_03_19") %>% 
+                          arrange(sensor_no)
+
+Checklist210119 <- read_xlsx("//fsact.nexus.csiro.au/ANF-Share1/MyallVale/Groups/COTPhys/2018-2019/Protocols/1819_CanopyTemperatureSensorAllocation.xlsx", "ArduChecklist210119") %>% 
+  arrange(sensor_no)
+
+Checklist290119 <- read_xlsx("//fsact.nexus.csiro.au/ANF-Share1/MyallVale/Groups/COTPhys/2018-2019/Protocols/1819_CanopyTemperatureSensorAllocation.xlsx", "Unknown2901019") %>% 
+  arrange(sensor_no)
+
+Checklist010219 <- read_xlsx("//fsact.nexus.csiro.au/ANF-Share1/MyallVale/Groups/COTPhys/2018-2019/Protocols/1819_CanopyTemperatureSensorAllocation.xlsx", "checklist 1_02_19") %>% 
+  arrange(sensor_no)
+
+Checklist080219 <- read_xlsx("//fsact.nexus.csiro.au/ANF-Share1/MyallVale/Groups/COTPhys/2018-2019/Protocols/1819_CanopyTemperatureSensorAllocation.xlsx", "checklist 8_02_19") %>% 
+  arrange(sensor_no)
+
 Final_sensor_A2 <- read_xlsx("//fsact.nexus.csiro.au/ANF-Share1/MyallVale/Groups/COTPhys/2018-2019/Protocols/1819_CanopyTemperatureSensorAllocation.xlsx", "A2finalsensorlist100419") %>% 
-                  arrange(sensor_no)
+            arrange(sensor_no)
+
+Final_2 <- read_xlsx("//fsact.nexus.csiro.au/ANF-Share1/MyallVale/Groups/COTPhys/2018-2019/Protocols/Ardu changelist.xlsx", "sensor checklist") %>% 
+            arrange(sensor_no)
+
+
+
+
 phenonetHHJ <- read_csv("//fsact.nexus.csiro.au/ANF-Share1/MyallVale/Groups/COTPhys/2018-2019/CanopyTemperature/1819_Data/PhenoNet/phenoNET_20190321.csv")
