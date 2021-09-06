@@ -10,8 +10,6 @@ canopy_file_names <- list.files(path = "//fsact.nexus.csiro.au/ANF-Share1/MyallV
                                 pattern = "s\\d{3}.csv")
 
 
-
-
 df <- data_frame(filename = canopy_file_names) %>% 
   mutate(file_contents = map(filename, ~ read_csv(file.path(.),
                                                    skip = 0,
@@ -21,21 +19,18 @@ df <- data_frame(filename = canopy_file_names) %>%
 
 df_unnested <- unnest(df) %>% 
   mutate(UID = basename(filename)) %>% 
-  mutate(UID = str_remove(UID, ".csv"))
+  mutate(UID = str_remove(UID, ".csv")) %>% 
+  rename(CanopyTemp = AV_TempObj, Datetime = Date, ID = UID) %>% 
 
-
-min_max <- group_by()
-
-
-
-  as.tibble() %>% 
+ as.tibble() %>% 
 mutate(CanopyTemp = as.numeric(CanopyTemp),
        Datetime = ymd_hms(Datetime, tz = "Australia/Sydney")) %>%
   select(ID, CanopyTemp, Datetime)
 #------------
-str(SensorExtract)
+str(df_unnested)
+SensorExtract <- df_unnested
 
-
+# min_max <- group_by()
 # create a table of all the SensorIDs in the data file
 Sensors <- SensorExtract %>% distinct(ID) 
 
@@ -77,3 +72,4 @@ for (i in 1:nrow(Sensors)) {
   
   try(write_csv(mutate(BySensor,Datetime=format(Datetime, "%F %H:%M:%S")),
                 SaveFileName))
+}

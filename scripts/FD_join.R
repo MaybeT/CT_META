@@ -5,13 +5,14 @@ library(lubridate)
 library(readxl)
 
 #read in files; excel file name and sheet name or number
-readin <- read_csv("data/warren_dct.csv") %>%
-  mutate_if(is.character,as.factor) %>%  #mutate the character fields to factor
-  rename(Irrigation_type = Irrigation_Type, sensor_type = Sensor_type, experiment_name = Experiment_Name, 
-         planting_year = Planting_Year, treatment = Treatment, location = Location, plot_no = Plot_Number, 
-         row_configuration = Row_Configuration, planting_day_of_year = "Planting_Date_(DOY)", variety = Variety,
-         lint_yield_kg_per_ha = Lint_Yield_kg_ha, fibre_length_mm = Fibre_Length_mm, micronaire = Micronaire, 
-         fibre_strength_g.tex = "Fibre_Strength_(g/tex)")
+readin <- read_xlsx("M:/AusBIOTIC database/2014-15/GrowerTc_2014-15/May-be-important_files/Mean time between irrigations.xlsx") %>%
+  colnames(readin)
+  #mutate_if(is.character,as.factor) #mutate the character fields to factor
+  # rename(Irrigation_type = Irrigation_Type, sensor_type = Sensor_type, experiment_name = Experiment_Name, 
+  #        planting_year = Planting_Year, treatment = Treatment, location = Location, plot_no = Plot_Number, 
+  #        row_configuration = Row_Configuration, planting_day_of_year = "Planting_Date_(DOY)", variety = Variety,
+  #        lint_yield_kg_per_ha = Lint_Yield_kg_ha, fibre_length_mm = Fibre_Length_mm, micronaire = Micronaire, 
+  #        fibre_strength_g.tex = "Fibre_Strength_(g/tex)")
   
 Join1 <- filter(readin, planting_year == 2012) %>% 
   mutate(lint_yield_kg_per_ha = (as.numeric(lint_yield_kg_per_ha))) %>%
@@ -20,7 +21,7 @@ Join1 <- filter(readin, planting_year == 2012) %>%
   mutate(row_configuration = (as.factor(row_configuration))) %>% 
   mutate(temp_rep_no = (as.numeric(temp_rep_no))) %>% ##104 obs 
   mutate_at(vars(starts_with("Irrigation_Date")), .funs = dmy)
- 
+
 summary(Join1)
 
 glimpse(Join1)
@@ -85,6 +86,24 @@ anti_compare <- Join1 %>% anti_join(join_wc_cnt)
 compare2 <- Join2 %>% semi_join(join_wc_cnt)
 anti_compare2 <- Join2 %>% anti_join(join_wc_cnt)
 
-#left_join(df1, df2, by = c(match1 = match2)
+band_members %>% inner_join(band_instruments)
+band_members %>% left_join(band_instruments)
+band_members %>% right_join(band_instruments)
+band_members %>% full_join(band_instruments)
 
+# "Filtering" joins keep cases from the LHS
+band_members %>% semi_join(band_instruments)
+band_members %>% ?anti_join(band_instruments)
 
+# "Nesting" joins keep cases from the LHS and nests the RHS
+band_members %>% nest_join(band_instruments)
+
+# To suppress the message, supply by
+band_members %>% inner_join(band_instruments, by = "name")
+# This is good practice in production code
+
+# Use a named `by` if the join variables have different names
+band_members %>% full_join(band_instruments2, by = c("name" = "artist"))
+# Note that only the key from the LHS is kept
+
+#select columns to go into the dataframe

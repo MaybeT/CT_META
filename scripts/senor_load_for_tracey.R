@@ -2,8 +2,16 @@
 library(tidyverse)
 library(lubridate)
 
-# senors <- read_csv("G:/COTPhys/AusBIOTIC database/Definative_cT_Raw/2012/ACRI/2012_RefinedScheduling/PHEN332.csv") %>% 
-#   mutate(Datetime = dmy_hm(Datetime))
+senors <- read_csv("G:/COTPhys/AusBIOTIC database/Definative_cT_Raw/2012/ACRI/2012_RefinedScheduling/PHEN348.csv") %>% 
+    mutate(Datetime = dmy_hm(Datetime))
+
+ggplot(sensors, aes(x=date_time, y=canopy_temp, colour = UID))+
+  geom_point(alpha=0.3, size= 0.5, colour = "black")+
+  geom_point(data = filter(CT_sensors_cleaned, !between(canopy_temp, 5, 50)),
+             aes(x=date_time, y=canopy_temp), colour = "red")+
+  facet_wrap(~UID)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 # 
 # ggplot(senors, aes(Datetime, Canopytemp))+
 #   geom_point()
@@ -71,9 +79,13 @@ counts_tab <- CT_sensors_cleaned %>%
 summary_tab <- CT_sensors_cleaned %>% 
   group_by(UID) %>% 
   summarise(min_date = (min(date_time)),
-         max_date = max(date_time), reads = n())
+         max_date = max(date_time), reads = n()) %>% 
+  mutate(min_date = as.Date(min_date)) %>% 
+  mutate(max_date = as.Date(max_date))
 
+write_csv(summary_tab, "data/summary_sensors.csv")
 
+#unfiltered records plot with facet wrap
 ggplot(CT_sensors_cleaned, aes(x=date_time, y=canopy_temp, colour = UID))+
   geom_point(alpha=0.3, size= 0.5, colour = "black")+
   geom_point(data = filter(CT_sensors_cleaned, !between(canopy_temp, 5, 50)),
@@ -82,7 +94,18 @@ ggplot(CT_sensors_cleaned, aes(x=date_time, y=canopy_temp, colour = UID))+
   theme_minimal()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
+#select individual sensor to view
+filter_sensor <- filter(CT_sensors_cleaned, UID== "PHEN337")
+
+ggplot(filter_sensor, aes(x=date_time, y=canopy_temp, colour = UID))+
+  geom_point(alpha=0.3, size= 0.5, colour = "black")+
+  geom_point(data = filter(filter_sensor, !between(canopy_temp, 5, 50)),
+             aes(x=date_time, y=canopy_temp), colour = "red")+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
   
 saveRDS(CT_sensors_cleaned, file.path(RDS_data_files_location,"canopy-temperatures-cleaned_V2.rds"))
-write_csv(summary_tab, "data/summary_sensors.csv")
+
 

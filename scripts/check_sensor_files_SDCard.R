@@ -5,37 +5,68 @@ library(readxl)
 
 #Read files in a folder
 
-#PhenoNET_cT <- read_csv("//mvpc76-mv/C$/Users/may159/Downloads/1819_Analysis/1819_Data/2019-02-18_canopy-temperatures-cleaned.csv") %>% 
- # rename(UID = SensorSerial, Timestamp = LocalTime, Value = CanopyTemp)
+#2016-17 SD Card reads
+sensor_SD <- read_csv("//nexus.csiro.au/Home/M/may159/1617_Arducrop_SDCards/ExtractedFiles/BS2000.csv")
+sensor_SD <- read_csv("//mvpc76-mv/C$/Users/may159/Downloads/1819_Analysis/1100/1100Output160119.csv")
+sensor_SD_file <- rename(sensor_SD, UID = "ID", Timestamp = "time", Value = "AV Object temperature (c)", SDev = "SD Object temperature (c)", device_temp = "AV Object temperature (c)_1", SDev_device = "SD Object temperature (c)_1", num_obs = "num observations", batt_level =  "batt level")            
+#2017-18 SD card reads
+sensor_SD <- read_csv("//mvpc76-mv/C$/Users/may159/Downloads/1718_Analysis/SDCardDL/2000SD/2000_endDate.csv")
 
-PhenoNET_cT <- read_csv("//fsact.nexus.csiro.au/ANF-Share1/MyallVale/Groups/COTPhys/2018-2019/CanopyTemperature/1819_Data/PhenoNet/phenoNET_20190321.csv") %>% 
-      rename(UID = "Sensor Serial", Timestamp = "Local Time", Value ="Canopy Temp (°C)")
+sensor_SD_file <- rename(sensor_SD, UID = "ID", Timestamp = "time", Value = "AV Object temperature (c)", SDev = "SD Object temperature (c)", device_temp = "AV Object temperature (c)_1", SDev_device = "SD Object temperature (c)_1", num_obs = "num observations", batt_level =  "batt level")            
+
+              
+#check column names
+colnames(sensor_SD_file)   
+str(sensor_SD_file)
+#Summarise with UID from SD card file to see the date range present for the SD card
+
+SD_min_max <- group_by(sensor_SD_file, UID) %>% 
+  summarise(min_date = min(Timestamp, na.rm = TRUE),
+            max_date = max(Timestamp, na.rm = TRUE),
+            max = max(Value, na.rm = TRUE),
+            min = min(Value, na.rm = TRUE),
+            count = n())         
 
 
-colnames(PhenoNET_cT)   
+#create a tibble to work with. Select out the date range and required vectors
+SensorExtract <-   sensor_SD_file %>% 
+mutate(Value = as.numeric(Value),
+       Timestamp = ymd_hms(Timestamp, tz = "Australia/Sydney")) %>%
+  filter(Timestamp >= "2016-11-23" & Timestamp <= "2017-06-01") %>% 
+  filter(between(Value, 5,50)) %>% 
+  select(UID, Value, Timestamp)
 
-#Summarise with UID from phenonet file
+#Average min and max 
+#groupby (SensorExtract, UID, day(Timestamp)
+#summarise(min(min = min(Value, na.rm = TRUE)))
 
-min_max <- group_by(PhenoNET_cT, UID) %>% 
+
+#summarise filtered date values
+
+Mod_min_max <- group_by(SensorExtract, UID) %>% 
   summarise(min_date = min(Timestamp, na.rm = TRUE),
             max_date = max(Timestamp, na.rm = TRUE),
             min = min(Value, na.rm = TRUE),
             max = max(Value, na.rm = TRUE),
-            count = n())
-
-#create a tibble to work with. 
-
-SensorExtract <-   PhenoNET_cT %>% 
-mutate(Value = as.numeric(Value),
-       Timestamp = ymd_hms(Timestamp, tz = "Australia/Sydney")) %>%
-  select(UID, Value, Timestamp)
+            count = n())         
+write_csv(Mod_min_max,"data/summary_CCF_2016_17.csv")
 #------------
 
+#check table structure
+str(SensorExtract)
 
+#Visualise all sensors in list
+ggplot(SensorExtract, aes(x = Timestamp, y = Value))+
+  geom_point()+
+  facet_wrap(~UID)
+
+#Visualise all sensors in list
+#filter data between 11 and 50 C
+
+SensorExtract_filter <- 
 ggplot(SensorExtract, aes(x = Timestamp, y = Value))+
   geom_line()+
   facet_wrap(~UID)
-
 
 #view each sensor in a "for" loop for a closer look at each individual sensor. 
 
