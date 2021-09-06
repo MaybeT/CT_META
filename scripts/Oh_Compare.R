@@ -8,7 +8,7 @@ library(lubridate)
 library(readxl)
 
 #read in files; excel file name and sheet name or number - this is the "original" file
-meta1 <- read_xlsx("M:/AusBIOTIC database/Definative_cT_Raw/definitive canopy temperature.xlsx", "Sensor_Database") %>%
+meta1 <- read_xlsx("S:/Definative_cT_Raw/definitive canopy temperature.xlsx", "Sensor_Database") %>%
   mutate_if(is.character,as.factor) %>%  #mutate the character fields to factor
   rename(Irrigation_type = Irrigation_Type, sensor_type = Sensor_type, experiment_name = Experiment_Name, 
          planting_year = Planting_Year, treatment = Treatment, location = Location, plot_no = Plot_Number, 
@@ -48,7 +48,7 @@ glimpse(meta2)
 summary(meta1)
 summary(meta2)
 
-#Summarise the table to give a count of a grouped value "experiement name", "planting year"
+#Summarise the table to give a count of a grouped value "experiment name", "planting year"
 meta1Sum <- meta1 %>% group_by(experiment_name, planting_year, location)
 meta1_by <- meta1Sum %>% summarise(MetaData = n())
 
@@ -96,7 +96,7 @@ files_to_be_added_to_DAP <- full_join(meta1_by,meta2_by) %>%
                            full_join(.,meta4_by)
                            
 sort(files_to_be_added_to_DAP, by= planting_year) %>% write_csv(files_to_be_added_to_DAP, "data/FilesToBeAdded_DAP_RoseUpdate.csv")
-arrange(files_to_be_added_to_DAP, planting_year) %>% write_csv(files_to_be_added_to_DAP, "data/FilesToBeAdded_DAP_290420Update.csv")
+arrange(files_to_be_added_to_DAP, planting_year) %>% write_csv(files_to_be_added_to_DAP, "data/FilesToBeAdded_DAP_20200729Update.csv")
 
 
 
